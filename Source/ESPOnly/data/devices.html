@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="style.css">
+<script>
+function AddDevice()
+{
+	console.log("Add New Device");
+	var request = new XMLHttpRequest();
+	var txt = "";
+	txt += "{\ndevcode:"+DevCfg.AddDevCode.value+"\n";
+	txt += "params:moduleid="+DevCfg.AddModileID.value+";";
+	txt += "pin="+DevCfg.AddPin.value+";";
+	//if (DevCfg.AddDevCode.value == 2)
+		txt += DevCfg.AddKey.value;
+	//else
+	//	txt += "key="+DevCfg.AddKey.value";
+	txt += ";\n}";
+	request.open('POST','/devadd',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			console.log("add device ok");
+			DevicesOnLoad();
+		}
+	});
+	console.log(txt);
+	request.send(txt);
+}
+function DelDevice(dc)
+{
+	console.log(dc);
+	var request = new XMLHttpRequest();
+	var txt = "";
+	txt += "{\nmoduleid:"+dc+"\n}";
+	request.open('POST','/devdel',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			console.log("del device ok");
+			DevicesOnLoad();
+		}
+	});
+	console.log(txt);
+	request.send(txt);
+}
+
+function SelectDevChange()
+{
+	var aSelect = DevCfg.selAddDev;
+	DevCfg.AddDevCode.value = aSelect.options[aSelect.options.selectedIndex].value;
+}
+
+function SetDevList()
+{
+	var aSelect = DevCfg.selAddDev;
+	aSelect.addEventListener("change", SelectDevChange);
+
+	newOption = new Option("RF 433Mhz reciever", 1);
+	aSelect.options[aSelect.options.length]=newOption;
+	newOption = new Option("Relay", 2);
+	aSelect.options[aSelect.options.length]=newOption;
+	newOption = new Option("DHT sensor", 3);
+	aSelect.options[aSelect.options.length]=newOption;
+	newOption = new Option("PIR sensor", 4);
+	aSelect.options[aSelect.options.length]=newOption;
+	
+	newOption = new Option("No Device", 255);
+	aSelect.options[aSelect.options.length]=newOption;
+	aSelect.options[aSelect.options.length-1].selected =true;
+	SelectDevChange();
+}
+/*
+[{"DevCode":0,"ModuleID":0}]
+
+function test()
+{
+var txt = "";
+myObj = JSON.parse("[{\"DevCode\":1,\"ModuleID\":0}]");
+txt += "<table border=\"1\" cellspacing=\"0\" style=\"text-align: center;margin-left: 10%;\">";
+			txt +="<tr height=\"30\"><td width=\"100\">DevCode</td><td width=\"250\">Device Type</td><td width=\"120\">Module ID</td><td width=\"80\">Pin</td><td width=\"200\">Key</td><td width=\"30\"></td></tr>"; //Table Header
+			for (x in myObj) {
+				txt += "<tr height=\"30\">"; 
+				txt += "<td>" +myObj[x].DevCode+"</td>";
+				//console.log(x);
+				switch(myObj[x].DevCode) // Device Type
+				{
+				//case 0: txt += "<td>Protocol</td>";break; // Protocol
+				case 1: txt += "<td>RF 433Mhz reciever</td>";break; // RF433
+				case 2: txt += "<td>Relay</td>";break; // Relay
+				case 3: txt += "<td>DHT sensor</td>";break; // Relay
+				case 4: txt += "<td>PIR sensor</td>";break; // Relay
+				default: "<td>" +myObj[x].DevCode+"</td>"
+				}
+				txt += "<td>" +myObj[x].ModuleID+"</td>";
+				switch(myObj[x].DevCode) //Pin
+				{
+				//case 0: txt += "<td></td>";break; // Protocol
+				case 1: txt += "<td>" + myObj[x].Pin + "</td>";break; // RF433
+				case 2: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				case 3: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				case 4: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				}
+				switch(myObj[x].DevCode) //Key
+				{
+				//case 0: txt += "<td></td>";break; // Protocol
+				case 1: txt += "<td></td>";break; // RF433
+				case 2: txt += "<td>" + myObj[x].Key + "</td>";break; // Relay
+				case 3: txt += "<td></td>";break;
+				case 4: txt += "<td></td>";break;
+				}
+				txt += "<td><input type=\"button\" name=\"del\" value=\"-\" style=\"width:28px;\" onclick=\"DelDevice("+myObj[x].ModuleID+");\"/></td>"; // button
+				txt += "</tr>";
+			}
+			txt += "<tr>";
+			txt += "<td><input name=\"AddDevCode\" class=\"edit_txt\" style=\"width:50px;\" readonly></td>";
+			txt += "<td><select class=\"select select--right\" name=\"selAddDev\" style=\"width:230px;margin-left: 10px;margin-bottom: 5px\"></select></td>";
+			txt += "<td><input name=\"AddModileID\" class=\"edit_txt\" style=\"width:100px;\"></td>";
+			txt += "<td><input name=\"AddPin\" class=\"edit_txt\" style=\"width:60px;\"></td>";
+			txt += "<td><input name=\"AddKey\" class=\"edit_txt\" style=\"width:180px;\"></td>";
+			txt += "<td><input type=\"button\" name=\"AddBtn\" value=\"+\" style=\"width:28px;\" onclick=\"AddDevice();\"/></td>"; // button
+			txt += "</tr>";
+			txt += "</table>";
+			document.getElementById("DevTab").innerHTML = txt;
+			SetDevList();
+}
+*/
+function DevicesOnLoad()
+{
+	var request = new XMLHttpRequest();
+	var txt = "";
+	request.open('POST','/devload',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			console.log(this.responseText);
+			myObj = JSON.parse(this.responseText);
+
+			txt += "<table border=\"1\" cellspacing=\"0\" style=\"text-align: center;margin-left: 10%;\">";
+			txt +="<tr height=\"30\"><td width=\"100\">DevCode</td><td width=\"250\">Device Type</td><td width=\"120\">Module ID</td><td width=\"80\">Pin</td><td width=\"200\">Key</td><td width=\"30\"></td></tr>"; //Table Header
+			for (x in myObj) {
+				txt += "<tr height=\"30\">"; 
+				txt += "<td>" +myObj[x].DevCode+"</td>";
+				//console.log(x);
+				switch(myObj[x].DevCode) // Device Type
+				{
+				case 0: txt += "<td>Protocol</td>";break; // Protocol
+				case 1: txt += "<td>RF 433Mhz reciever</td>";break; // RF433
+				case 2: txt += "<td>Relay</td>";break; // Relay
+				case 3: txt += "<td>DHT sensor</td>";break; // Relay
+				case 4: txt += "<td>PIR sensor</td>";break; // Relay
+				default: "<td>" +myObj[x].DevCode+"</td>"
+				}
+				txt += "<td>" +myObj[x].ModuleID+"</td>";
+				switch(myObj[x].DevCode) //Pin
+				{
+				case 0: txt += "<td></td>";break; // Protocol
+				case 1: txt += "<td>" + myObj[x].Pin + "</td>";break; // RF433
+				case 2: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				case 3: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				case 4: txt += "<td>" + myObj[x].Pin + "</td>";break; // Relay
+				default: "<td>" +myObj[x].Pin+"</td>"
+				}
+				switch(myObj[x].DevCode) //Key
+				{
+				case 0: txt += "<td></td>";break; // Protocol
+				case 1: txt += "<td></td>";break; // RF433
+				case 2: txt += "<td>" + myObj[x].Key + "</td>";break; // Relay
+				case 3: txt += "<td></td>";break;
+				case 4: txt += "<td></td>";break;
+				default: "<td>" +myObj[x].Key+"</td>"
+				}
+				txt += "<td><input type=\"button\" name=\"del\" value=\"-\" style=\"width:28px;\" onclick=\"DelDevice("+myObj[x].ModuleID+");\"/></td>"; // button
+				txt += "</tr>";
+			}
+			txt += "<tr>";
+			txt += "<td><input name=\"AddDevCode\" class=\"edit_txt\" style=\"width:50px;\" readonly></td>";
+			txt += "<td><select class=\"select select--right\" name=\"selAddDev\" style=\"width:230px;margin-left: 10px;margin-bottom: 5px\"></select></td>";
+			txt += "<td><input name=\"AddModileID\" class=\"edit_txt\" style=\"width:100px;\"></td>";
+			txt += "<td><input name=\"AddPin\" class=\"edit_txt\" style=\"width:60px;\"></td>";
+			txt += "<td><input name=\"AddKey\" class=\"edit_txt\" style=\"width:180px;\"></td>";
+			txt += "<td><input type=\"button\" name=\"AddBtn\" value=\"+\" style=\"width:28px;\" onclick=\"AddDevice();\"/></td>"; // button
+			txt += "</tr>";
+			txt += "</table>";    
+			console.log(txt);
+			document.getElementById("DevTab").innerHTML = txt;
+			SetDevList();
+		}
+	});
+	request.send("LOAD DEVICES");
+}
+
+</script>
+</head>
+<body onload="DevicesOnLoad();">
+<!--body onload="test();"-->
+<center><h2>Конфигурация датчиков и исполнительных устройств</h2></center>
+<form name="DevCfg">
+<p id="DevTab"></p>
+</form>
+</body>
+</html>

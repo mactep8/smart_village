@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="style.css">
+<script>
+function call_settings()
+{
+	parent.frm_main.location = "settings.html";
+}
+
+function call_devices()
+{
+	parent.frm_main.location = "devices.html";
+}
+
+function call_control()
+{
+	parent.frm_main.location = "controls.html";
+}
+
+function call_flash()
+{
+	parent.frm_main.location = "flash.html";
+}
+</script>
+</head>
+<body> <center>
+<button style="width:200px;" onclick="call_settings()">WiFi</button><br>
+<button style="width:200px;" onclick="call_devices()">Устройства</button><br>
+<button style="width:200px;" onclick="call_control()">Контроль</button>
+<button style="width:200px;" onclick="call_flash()">Прошивка</button>
+</center>
+</body>
+</html>

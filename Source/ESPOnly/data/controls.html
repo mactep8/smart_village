@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="style.css">
+<script src="controls.js"> </script>
+ </head>
+ <body onload="OnClick('tab-01');">
+   <h1>Управление датчиками и исполнительными устройствами</h1>
+
+   <div class='tab-control'>
+    <div class='tab-header'>
+     <div id='tab-01' onclick='OnClick(this.id)'>Показания датчиков</div>
+     <div id='tab-02' onclick='OnClick(this.id)'>Исполнительные устройства</div>
+    </div> 
+    <div class='tab-body'>
+     <div id='btab-01'><p id="sensValue">
+		
+	 </p></div>
+     <div id='btab-02'><p id="execValue">Таблица исполнительных устройств</p></div>
+    </div> 
+   </div>
+
+ </body>
+</html>

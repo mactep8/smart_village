@@ -1,0 +1,1 @@
+4ch_pro_simple\startup_stm32f030x6.o: startup_stm32f030x6.s

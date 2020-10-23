@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="style.css">
+<script>
+function WiFiOnLoad()
+{
+	var request = new XMLHttpRequest();
+	request.open('POST','/wifiload',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			console.log(this.responseText);
+			while (wificfg.selSSID.options[wificfg.selSSID.options.selectedIndex])
+			{
+				wificfg.selSSID.remove(wificfg.selSSID.options.selectedIndex);
+			}
+			var myObj = JSON.parse(this.responseText);
+			var newOption = new Option(myObj.SSID, myObj.SSID);
+			wificfg.selSSID.options[wificfg.selSSID.options.length]=newOption;
+			wificfg.wifiPwd.value    = myObj.SSIDkey,
+			wificfg.mName.value = myObj.mName,
+			wificfg.APEnable.checked = myObj.APEnable;
+			
+		}
+	});
+	request.send("LOAD WIFI");
+}
+
+</script>
+</head>
+<body onload="WiFiOnLoad();">
+<form name="wificfg">
+<table border=0 width="100%">
+<tr>
+	<td colspan=2><center><h2>Конфигурация WiFi</h2></center></td>
+</tr>
+<tr>
+	<td width="20%">MAC</td>
+	<td>[#MY_MAC#]</td>
+</tr>
+<tr>
+	<td>IP</td>
+	<td>[#MY_LOCAL_IP#]</td>
+</tr>
+<tr>
+	<td>SSID</td>
+	<td><table border=0>
+<tr valign="middle">
+		<td><select class="select select--right" name="selSSID" style="width:185px;">
+		</select></td><td>
+		<input type="button" name="scan" value="Сканировать" class="edit_btn"></input></td>
+</tr></table>
+	</td>
+</tr>
+<tr>
+	<td>SSID key</td>
+	<td><input name="wifiPwd" class="edit_txt"></td>
+</tr>
+<tr>
+	<td>Module name</td>
+	<td><input name="mName" class="edit_txt"></td>
+</tr>
+<tr>
+	<td>AP enabled</td>
+	<td><input type="checkbox" name="APEnable" value=1 checked class="edit_txt"></td>
+</tr>
+<tr>
+	<td colspan=2>&nbsp</td>
+</tr>
+<tr>
+	<td colspan=2>
+	<center>
+		<input type="button" name="wifisave" value="Save" class="edit_btn"></input>&nbsp&nbsp
+		<input type="button" name="wifireboot" value="Reboot" class="edit_btn"></input>
+	</center>
+	</td>
+</tr>
+</table>
+</form>
+
+<script src="settings.js">
+
+
+</script>
+</body>
+</html>

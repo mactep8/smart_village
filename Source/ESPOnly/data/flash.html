@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1><center>Файлы сервера</center></h1>
+<table border="0" cellspacing="0" style="text-align: left;margin-left: 10%;">
+<tr height="30"><td width="500">
+<input type="file" id="file-input"/>
+</td>
+</tr>
+</table>
+<div id="FilesMain"></div>
+
+</body>
+<script>
+var fileData = null;
+var filename = null;
+	
+function sendData() {
+	var http = new XMLHttpRequest();
+	var url = "/uploadfile&"+ filename
+	var params = fileData;
+	http.open("POST", url, true);
+	http.send(params);
+}
+
+function uploadFile() {
+	sendData();
+	setTimeout(getFileList, 2000);
+}
+
+function readSingleFile(e) {
+	var file = e.target.files[0];
+	filename = file.name;	
+	if (!file) { return; }
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		fileData = e.target.result;	
+		uploadFile();
+	};
+	reader.readAsArrayBuffer(file);
+	
+}
+
+function DelFile(fileName)
+{
+	var request = new XMLHttpRequest();
+	var txt = "";
+	txt += "{\nfileName:"+fileName+"\n}";
+	request.open('POST','/deletefile',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			getFileList();
+		}
+	});
+	request.send(txt);
+}
+
+function espFlush(fileName)
+{
+	var request = new XMLHttpRequest();
+	var txt = "";
+	txt += "{\nfname:"+fileName+"\n}";
+	console.log(txt);
+	request.open('POST','/espflush',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		if ((request.readyState==4) && (request.status==200)) {
+			getFileList();
+		}
+	});
+	request.send(txt);
+}
+
+function avrFlush(fileName)
+{
+	var request = new XMLHttpRequest();
+	var txt = "";
+	txt += "{\nfname:"+fileName+"\n}";
+	console.log("avr " + txt);
+	request.open('POST','/avrflush',true);
+	request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	request.addEventListener('readystatechange', function() {
+		console.log("avr response : " + this.responseText);
+		if ((request.readyState==4) && (request.status==200)) {
+			
+			getFileList();
+		}
+	});
+	request.send(txt);
+}
+
+function showFiles(jsonFiles)
+{
+	var TableBegin = "<table border=\"1\" cellspacing=\"0\" style=\"text-align: center;margin-left: 10%;\">";
+	var TableEnd = "</table>";
+	var RowHeader = "<tr height=\"30\"><td width=\"200\">FileName</td><td width=\"100\">Size</td><td width=\"200\"></td></tr>";
+	var txt = "";
+	
+	txt += TableBegin;
+	txt += RowHeader;
+	myObj = JSON.parse(jsonFiles);
+	for (x in myObj) {
+		txt += "<tr height=\"30\"><td>" + myObj[x].fileName + "</td><td>" + myObj[x].fileSize;
+		txt += "</td><td><input type=\"button\" name=\"DelBtn\" value=\"X\" style=\"width:28px;\" onclick=\"DelFile('"+myObj[x].fileName+"');\"/>";
+		if (myObj[x].fileName.substring(myObj[x].fileName.length-4,myObj[x].fileName.length) == ".bin"){
+			txt += "<input type=\"button\" name=\"flhBtn\" value=\"F\" style=\"width:28px;margin-left: 10px;\" onclick=\"espFlush('"+myObj[x].fileName+"');\"/>";
+		}
+		if (myObj[x].fileName.substring(myObj[x].fileName.length-4,myObj[x].fileName.length) == ".hex"){
+			txt += "<input type=\"button\" name=\"flhBtn\" value=\"F\" style=\"width:28px;margin-left: 10px;\" onclick=\"avrFlush('"+myObj[x].fileName+"');\"/>";
+		}
+		txt += "</td></tr>";
+	}
+	txt += TableEnd;
+	document.getElementById('FilesMain').innerHTML = txt;
+	
+}
+
+function getFileList() {
+	var http = new XMLHttpRequest();
+	var url = "/files";
+
+	http.open("GET", url, true);
+	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	http.onreadystatechange = function() {
+		if(http.readyState == 4 && http.status == 200) {
+			showFiles(http.responseText);
+		}
+	}
+	
+	http.send();
+}
+document.getElementById('file-input').addEventListener('change', readSingleFile, false);
+window.onload = function () { getFileList(); };
+</script>
+</html>
